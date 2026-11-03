@@ -1,0 +1,128 @@
+{
+  "researched_on": "2026-11-02",
+  "scope": "保留官方README、许可证与文档调研；本次仅按本地源码更新实现范围，未重新联网、构建、启动、扫描、测试或实测容量",
+  "deployment": {
+    "os": "Windows",
+    "host": "办公电脑",
+    "client": "浏览器",
+    "confirmed_by_user": true,
+    "process": "普通后台程序，未注册SCM Windows Service",
+    "listen": "http://127.0.0.1:5188",
+    "authentication": "当前仅本机回环，无登录；写API使用会话令牌与同源检查"
+  },
+  "projects": [
+    {
+      "name": "NetAlertX",
+      "url": "https://github.com/netalertx/NetAlertX",
+      "license_observed": "GPL-3.0",
+      "learn": [
+        "多来源发现",
+        "状态变化",
+        "采集插件"
+      ],
+      "constraint": "官方容器 host 网络及网络能力配置不能直接证明 Windows 原生二层发现可行",
+      "evidence": "notes/discovery-research.md"
+    },
+    {
+      "name": "WatchYourLAN",
+      "url": "https://github.com/aceberg/WatchYourLAN",
+      "license_observed": "MIT",
+      "learn": [
+        "轻量发现",
+        "设备清单",
+        "上下线历史"
+      ],
+      "constraint": "Linux arp-scan 依赖",
+      "evidence": "notes/discovery-research.md"
+    },
+    {
+      "name": "Uptime Kuma",
+      "url": "https://github.com/louislam/uptime-kuma",
+      "license_observed": "MIT",
+      "learn": [
+        "Ping/TCP 监控",
+        "历史曲线",
+        "通知"
+      ],
+      "constraint": "本次 README 未确立自动发现、资产管理或物理拓扑能力，需独立补齐",
+      "evidence": "notes/discovery-research.md"
+    },
+    {
+      "name": "LibreNMS",
+      "url": "https://github.com/librenms/librenms",
+      "license_observed": "GPLv3 with third-party exceptions",
+      "learn": [
+        "SNMP/ARP/xDP 发现",
+        "接口状态",
+        "网络地图"
+      ],
+      "constraint": "Fast Ping Checking 仅判断 up/down，不能代表丢包及平均 RTT 测量",
+      "sources": [
+        "https://docs.librenms.org/Extensions/Auto-Discovery/",
+        "https://docs.librenms.org/Extensions/Network-Map/",
+        "https://docs.librenms.org/Extensions/Fast-Ping-Check/",
+        "https://github.com/librenms/librenms/blob/master/LICENSE.txt"
+      ],
+      "evidence": "notes/topology-research.md"
+    },
+    {
+      "name": "Netdisco",
+      "url": "https://github.com/netdisco/netdisco",
+      "license_observed": "BSD-3-Clause",
+      "learn": [
+        "MAC/IP 与交换机端口关联",
+        "ARP/FDB 观测",
+        "邻居关系"
+      ],
+      "constraint": "设备不提供端口/邻居数据时关系可能仅到上联，不能视为确定直连",
+      "sources": [
+        "https://github.com/netdisco/netdisco/wiki/Configuration",
+        "https://github.com/netdisco/netdisco/blob/master/LICENSE.md"
+      ],
+      "evidence": "notes/topology-research.md"
+    },
+    {
+      "name": "Zabbix",
+      "url": "https://github.com/zabbix/zabbix",
+      "license_observed": "AGPLv3 in inspected master COPYING",
+      "learn": [
+        "ICMP 指标",
+        "持续故障触发",
+        "告警依赖"
+      ],
+      "constraint": "官方网络发现不提供网络拓扑发现",
+      "sources": [
+        "https://www.zabbix.com/integrations/ping",
+        "https://www.zabbix.com/documentation/current/en/manual/discovery/network_discovery",
+        "https://github.com/zabbix/zabbix/blob/master/COPYING"
+      ],
+      "evidence": "notes/topology-research.md"
+    }
+  ],
+  "platform_sources": [
+    "https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/windows-service?view=aspnetcore-10.0",
+    "https://sqlite.org/wal.html"
+  ],
+  "platform_sources_note": "Windows Service和SQLite WAL页面为早期研究保留来源，当前未采用SCM服务或SQLite。",
+  "recommendation": {
+    "status": "source_implemented_runtime_results_recorded_by_main_task",
+    "backend": "C# / ASP.NET Core 8 + BackgroundService，普通后台进程",
+    "frontend": "React / TypeScript",
+    "storage": "无数据库；state.json原子替换并保留.bak，历史按日追加JSONL",
+    "history_limits": "默认7天，可配1-30天；超过32MiB后分片；512MiB总量保护；每设备近期缓存240条",
+    "capacity_target": "20-500 devices; code caps inventory at 500; load capacity untested",
+    "topology": "当前站点/分组逻辑监测范围图，无物理或人工连线；SNMP/LLDP/CDP为未来增强",
+    "notifications": "站内事件和获准的浏览器通知，需页面运行；邮件/Webhook/outbox/重试未实现",
+    "implementation_evidence": [
+      "src/Lantern/Lantern.csproj",
+      "src/Lantern/Program.cs",
+      "src/Lantern/FileStateStore.cs",
+      "src/Lantern/MonitorService.cs",
+      "src/Lantern/NetworkProbe.cs",
+      "frontend/src/App.tsx",
+      "frontend/src/pages.tsx",
+      "scripts/start.ps1"
+    ]
+  },
+  "next_implementation": "完成Windows构建启动和现场验证；后续实施SNMP/LLDP/CDP、物理/人工拓扑、邮件/Webhook、远程认证和完整历史查询"
+}

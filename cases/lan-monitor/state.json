@@ -1,0 +1,157 @@
+{
+  "slug": "lan-monitor",
+  "title": "局域网监控与设备管理系统",
+  "updated_at": "2026-11-03",
+  "status": "copyright_materials_complete",
+  "phase": "formal_materials_generated_and_verified",
+  "objective": "在 Windows 办公电脑上提供无需数据库、浏览器访问的局域网监控与设备管理首版。",
+  "scope": {
+    "audience": [
+      "中小企业",
+      "办公室",
+      "工作室"
+    ],
+    "requested_features": [
+      "自动设备发现",
+      "IP/MAC/名称/在线状态管理",
+      "Ping 延迟和丢包率",
+      "端口检测",
+      "异常提醒",
+      "拓扑及运行状态展示"
+    ],
+    "confirmed_deployment": "Windows 办公电脑安装，浏览器访问",
+    "storage": "本地 JSON state.json + .bak 与按日 JSONL 历史；不使用数据库",
+    "runtime": "ASP.NET Core net8.0 普通后台进程，回环地址 127.0.0.1:5188"
+  },
+  "implementation_status": {
+    "backend": "已完成：网卡读取、受控私有 IPv4 发现、ARP/DNS 辅助、ICMP/TCP 探测、状态机、告警、文件持久化、CSV 资产导入导出、批量资产更新与运行报告 API",
+    "frontend": "已完成并收口：总览、设备台账、详情趋势、逻辑拓扑、告警、运行报告、设置、扫描进度、JSON/CSV 导出、CSV 导入预览和批量编辑；轮询竞态、表单脏字段、响应式导航、分页和键盘可访问性已修复",
+    "launcher": "已完成：build.ps1、start.ps1、stop.ps1、start.cmd；启动日志与 PID 归属校验",
+    "automatic_discovery": "已完成：设置中保存网段并开启后默认每 10 分钟发现；默认网段为空，不探测未知网段",
+    "pause_identity_safety": "已完成：暂停设备再次发现不会复制、恢复或覆盖用户端口；MAC 冲突产生身份告警",
+    "asset_extensions": "已完成：标签、负责人、位置字段，设备批量更新，CSV 模板/预览/服务端导入校验和资产 CSV 导出",
+    "network_report": "已完成：按 1 小时至 30 天窗口汇总现有状态、近期历史、端口结果和活动事件，提供风险清单、建议和 CSV/JSON 导出"
+  },
+  "artifacts": [
+    "README.md",
+    "reports/implementation.md",
+    "reports/lan-monitor-plan.md",
+    "notes/implementation-contract.md",
+    "notes/windows-run.md",
+    "exports/reference-projects.json",
+    "src/Lantern",
+    "frontend",
+    "scripts",
+    "artifacts/app"
+  ],
+  "validation": {
+    "frontend_build": "通过：npm.cmd run build，TypeScript/Vite 生产构建（扩展功能后再次通过）",
+    "backend_build": "通过：dotnet build src/Lantern/Lantern.csproj -c Release --nologo（扩展功能后，0 个警告、0 个错误）",
+    "backend_publish": "通过：scripts/build.ps1，.NET Release 发布至 artifacts/app（扩展功能后再次通过）",
+    "startup": "通过：scripts/start.ps1 -NoBrowser；PID 13148 监听 127.0.0.1:5188",
+    "data_initialization": "通过：data/state.json 已创建，默认 settings 正常，devices/incidents 为空",
+    "real_lan_scan": "未执行；默认 subnet 为空，避免未经用户选择就探测网络",
+    "automated_tests": "未编写或运行；按用户当前要求完成构建与启动验收",
+    "browser_runtime": "通过：浏览器打开新版工作台并进入“运行报告”，确认真实本机采样的在线率、延迟、丢包、风险设备和活动事件均能渲染；未执行真实局域网扫描",
+    "source_material_lines": "通过：15 个真实源码文件共 12,292 个有效非空行，超过按每页 50 行计算的 60 页材料要求；已排除依赖、构建产物和运行数据"
+  },
+  "known_boundaries": [
+    "当前是普通后台进程，尚未注册 Windows SCM 服务或开机自启",
+    "首版仅回环访问，无多用户登录；浏览器通知仅在页面保持打开且用户授权时生效",
+    "拓扑为按分组和监测范围的逻辑视图，不代表交换机物理连线；SNMP/LLDP/CDP、邮件/Webhook 尚未实现",
+    "首版最多管理 500 台设备，一次扫描最多 1024 个私有 IPv4 目标，未做现场容量实测",
+    "MAC 主要依赖同网段 Windows ARP，跨 VLAN 或设备不响应时可能为空"
+  ],
+  "next_steps": [
+    "在浏览器打开 http://127.0.0.1:5188，选择实际办公网段执行首次发现",
+    "在设置中保存网段并确认自动发现与自动监测开关",
+    "根据现场需要增加 Windows 登录自启/SCM 服务、SNMP/LLDP/CDP 和邮件/Webhook",
+    "使用真实设备做小规模采集和容量验证",
+    "使用正式资料目录中的申请表信息、代码材料和操作手册进行本地复核与后续提交",
+    "如需更严格的 OpenXML 预览校验，可在安装 .NET SDK 后重新生成"
+  ],
+  "copyright_materials": {
+    "status": "awaiting_user_confirmation",
+    "phase": "application_fields_review",
+    "environment_choice": "basic_docx_fallback",
+    "confirmed_stages": [
+      "environment",
+      "business",
+      "code-selection",
+      "application-fields",
+      "screenshot-method",
+      "markdown"
+    ],
+    "confirmed_fields": {
+      "软件全称": "局域网监控与设备管理系统",
+      "软件简称": "局域网设备管理系统",
+      "版本号": "V1.0",
+      "软件分类": "应用软件",
+      "开发完成日期": "2026-11-02",
+      "开发方式": "单独开发",
+      "软件说明": "原创",
+      "发表状态": "未发表",
+      "权利范围": "全部权利",
+      "权利取得方式": "原始取得",
+      "开发硬件环境": "i5-9500，16GB 内存，约954GB存储",
+      "运行硬件环境": "i5-9500，16GB 内存，约954GB存储",
+      "开发操作系统": "Windows 10 专业版",
+      "运行平台": "Windows 10/11，本机浏览器",
+      "运行支撑环境": ".NET 8、ASP.NET Core 8运行时、现代浏览器",
+      "编程语言": "C#、TypeScript、JavaScript、CSS",
+      "开发工具": "Visual Studio Code",
+      "著作权人": "个人著作权人，已在申请表草稿中填写"
+    },
+    "output_directory": "软件著作权申请资料",
+    "prepared_drafts": [
+      "环境检查.md",
+      "草稿/业务理解.md",
+      "草稿/业务理解.json",
+      "草稿/代码-前30页.md",
+      "草稿/代码-后30页.md",
+      "草稿/代码提取清单.md",
+      "草稿/代码提取清单.json",
+      "草稿/申请表信息.md",
+      "草稿/操作手册.md",
+      "草稿/操作手册自检记录.md",
+      "草稿/操作手册自检记录.json",
+      "截图/截图清单.json",
+      "正式资料/申请表信息.txt",
+      "正式资料/局域网监控与设备管理系统-代码(前30页).docx",
+      "正式资料/局域网监控与设备管理系统-代码(后30页).docx",
+      "正式资料/局域网监控与设备管理系统_操作手册.docx",
+      "正式资料/生成报告.md",
+      "正式资料/验证记录.md"
+    ],
+    "source_audit": {
+      "scope": "15 个自有前端和后端源码文件；排除依赖、构建产物和运行数据",
+      "effective_non_blank_lines": 12292,
+      "evidence": "软件著作权申请资料/analysis/源码审计.md"
+    },
+    "screenshot_capture": {
+      "method": "computer-use-playwright-fallback",
+      "image_count": 10,
+      "viewport": "1440x900",
+      "browser_error_count": 0,
+      "manifest": "软件著作权申请资料/截图/截图清单.json"
+    },
+    "final_outputs": {
+      "directory": "软件著作权申请资料/正式资料",
+      "application_txt": "申请表信息.txt",
+      "code_documents": [
+        "局域网监控与设备管理系统-代码(前30页).docx",
+        "局域网监控与设备管理系统-代码(后30页).docx"
+      ],
+      "manual_document": "局域网监控与设备管理系统_操作手册.docx",
+      "validation_record": "验证记录.md"
+    },
+    "final_validation": {
+      "file_integrity": "3 个 DOCX 非空、ZIP 结构完整且可读取",
+      "code_traceability": "抽样回溯到已确认的 App.tsx 与 DeviceManagement.cs",
+      "format_consistency": "名称和版本一致；两份代码文档各 30 页；操作手册内嵌 10 张截图；正文、页眉和页脚文字为黑色",
+      "openxml_preview": "未执行；环境按已确认的基础 DOCX 兜底方式生成"
+    },
+    "next_action": "正式 Word/TXT 已生成并验证完成。"
+  },
+  "blockers": []
+}

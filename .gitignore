@@ -1,0 +1,8 @@
+data/
+artifacts/
+**/bin/
+**/obj/
+frontend/node_modules/
+src/Lantern/wwwroot/
+*.user
+*.tsbuildinfo
